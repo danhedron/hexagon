@@ -1,5 +1,8 @@
 var game = {
 	canvas: document.getElementById('the_game'),
+	gameoverdiv: document.getElementById('gameover'),
+	gameovertimediv: document.getElementById('gameover_time'),
+	timediv: document.getElementById('timer'),
 	colorset: 1,
 	background: 'rgb(0,0,0)',
 	backgroundalt: 'rgb(255,255,255)',
@@ -257,26 +260,16 @@ game.drawers = [
 		c.restore();
 	},
 	function drawScore(c) {
-		c.save();
-		c.fillStyle = "rgb(0,0,0)";
-		c.fillRect(0,0,150,30);
-		c.fillStyle = "rgb(255,255,255)";
-		c.font = "15px sans-serif";
-		c.fillText(game.time/1000, 5, 20);
+		game.timediv.innerHTML = game.time/1000;
+		game.gameovertimediv.innerHTML = game.time/1000;
 		if(game.over) {
-			c.fillStyle = "rgb(0,0,0)";
-			c.font = "30px sans-serif";
-			c.fillRect(0, game.canvas.height/2-30,200,35);
-			c.fillStyle = "rgb(255,255,255)";
-			c.fillText("GAME OVER", 5, game.canvas.height/2);
-
-			c.fillStyle = "rgb(0,0,0)";
-			c.fillRect(game.canvas.width-200, game.canvas.height/2-50, 200, 50);
-			c.font = "45px sans-serif";
-			c.fillStyle = "rgb(255,255,255)";
-			c.fillText(game.time/1000, game.canvas.width-190, game.canvas.height/2-10);
+			game.gameoverdiv.style.display =
+			game.gameovertimediv.style.display = 'block';
 		}
-		c.restore();
+		else {
+			game.gameoverdiv.style.display =
+			game.gameovertimediv.style.display = 'none';
+		}
 	}
 ];
 
