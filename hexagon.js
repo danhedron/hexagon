@@ -5,6 +5,9 @@ var game = {
 	backgroundalt: 'rgb(255,255,255)',
 	line: 'rgb(39,255,255)',
 	linesize: 25,
+	spawnbounds: 500,
+	spawnmargin: 150,
+	lastshapesize: 0,
 	playersize: 5,
 	playerang: 0,
 	playerspeed: 0.1,
@@ -46,6 +49,22 @@ var coloursets = [
 
 game.shapes = [
 	[
+		[[0,30],[100,30]],
+		[[0,30],[100,30]],
+		[[0,30]],
+		[[0,30],[100,30]],
+		[[0,30],[100,30]],
+		[[100,30]]
+	],
+	[
+		[[0,30]],
+		[[0,30]],
+		[[0,30]],
+		[[0,30]],
+		[[0,30]],
+		[[100,30]]
+	],
+	[
 		[[0,30]],
 		[[0,30]],
 		[[0,30]],
@@ -55,11 +74,27 @@ game.shapes = [
 	],
 	[
 		[[0  ,30]],
-		[[60 ,30]],
-		[[120,30]],
+		[[40 ,30]],
+		[[80,30]],
 		[[0  ,30]],
-		[[60 ,30]],
-		[[120,30]]
+		[[40 ,30]],
+		[[80,30]]
+	],
+	[
+		[[0  ,30],[120,30]],
+		[[40 ,30],[160,30]],
+		[[80 ,30],[200,30]],
+		[[0  ,30],[120,30]],
+		[[40 ,30],[160,30]],
+		[[80 ,30],[200,30]]
+	],
+	[
+		[[0 ,30],        [120,30],        [240,30]],
+		[        [60,30],         [180,30]],
+		[[0 ,30],        [120,30],        [240,30]],
+		[        [60,30],         [180,30]],
+		[[0 ,30],        [120,30],        [240,30]],
+		[        [60,30],         [180,30]]
 	],
 	[
 		[[0,60]],
@@ -262,16 +297,19 @@ game.thinkers = [
 				}
 			});
 		}
-		if(maxH < 500) {
+		if(maxH < game.spawnbounds+game.lastshapesize) {
 			// Not enough hexajohns.
-			var i =Math.floor((game.shapes.length)*Math.random());
+			var i = Math.floor((game.shapes.length)*Math.random());
 			var shape = game.shapes[i];
+			var shapesize = 0;
 			var offset = Math.floor(7 * Math.random());
 			shape.forEach(function(h, n){
 				h.forEach(function(s) {
-					game.hexajohns[(n+offset)%6].push([game.t+600+s[0], s[1]]);
+					shapesize = Math.max(s[1], shapesize);
+					game.hexajohns[(n+offset)%6].push([game.t+game.spawnbounds+game.lastshapesize+game.spawnmargin+s[0], s[1]]);
 				});
 			});
+			game.lastshapesize = shapesize;
 		}
 	},
 
