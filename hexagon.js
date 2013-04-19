@@ -18,12 +18,14 @@ var game = {
 	segcount: 6,
 	segsize: 1000,
 	ramptime: 240,
-	rampmulti: 1,
-	tmulti: 0.075,
-	last: (new Date()).getTime(),
+	rampmulti: 1.5,
+	tmulti: 75,
+	last: 0,
 	t: 0,
 	tick: 0,
 	time: 0,
+	accum: 0,
+	timestep: 1/60,
 	over: false
 };
 
@@ -260,8 +262,8 @@ game.drawers = [
 		c.restore();
 	},
 	function drawScore(c) {
-		game.timediv.innerHTML = game.time/1000;
-		game.gameovertimediv.innerHTML = game.time/1000;
+		game.timediv.innerHTML = game.time.toFixed(2);
+		game.gameovertimediv.innerHTML = game.time.toFixed(2);
 		if(game.over) {
 			game.gameoverdiv.style.display =
 			game.gameovertimediv.style.display = 'block';
@@ -337,24 +339,29 @@ game.thinkers = [
 ]
 
 function gloop(e) {
-	e = e || (new Date()).getTime();
-	var rampmod = Math.min(game.ramptime, game.time/1000)/game.ramptime;
-	console.log(rampmod*game.rampmulti);
-	game.dt = (e - game.last) * (game.tmulti + rampmod*game.rampmulti*game.tmulti);
-	game.tick += game.over ? game.dt/2 : game.dt;
-	if(!game.over) {
-		game.time += (e - game.last);
-		game.t += game.dt;
-	}
+	var rdt = (e-game.last)/1000;
 	game.last = e;
-	var cnv = game.canvas;
-	var c = game.context;
+	game.accum += rdt;
 
-	//Handle thinking
-	game.thinkers.forEach(function(t){ t.call(game, game.over ? 0 : game.dt); });
-	game.drawers.forEach(function(d){ d.call(game, c); });
+	while(game.accum > game.timestep) {
+		var rampmod = Math.min(game.ramptime, game.time)/game.ramptime;
+		game.dt = game.timestep * (game.tmulti + rampmod*game.rampmulti*game.tmulti);
+		game.tick += game.over ? game.dt/2 : game.dt;
+		if(!game.over) {
+			game.time += rdt;
+			game.t += game.dt;
+		}
+		var cnv = game.canvas;
+		var c = game.context;
 
-	requestAnimFrame(function() {gloop()});
+		//Handle thinking
+		game.thinkers.forEach(function(t){ t.call(game, game.over ? 0 : game.dt); });
+		game.drawers.forEach(function(d){ d.call(game, c); });
+		
+		game.accum -= game.timestep;
+	}
+
+	requestAnimFrame(function(t) {gloop(t)});
 }
 
-gloop();
+gloop(0);
