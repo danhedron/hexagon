@@ -3,6 +3,7 @@ var game = {
 	gameoverdiv: document.getElementById('gameover'),
 	gameovertimediv: document.getElementById('gameover_time'),
 	timediv: document.getElementById('timer'),
+	audio: document.getElementById('audio_player'),
 	colorset: 1,
 	background: 'rgb(0,0,0)',
 	backgroundalt: 'rgb(255,255,255)',
@@ -102,12 +103,12 @@ game.shapes = [
 		[        [60,30],         [180,30]]
 	],
 	[
-		[[0,60]],
-		[[0,60]],
-		[],
-		[[0,60]],
-		[[0,60]],
-		[]
+		[[0,60],         ,[240, 60]],
+		[[0,60],[120, 60]],
+		[       [120, 60],[240, 60]],
+		[[0,60],         ,[240, 60]],
+		[[0,60],[120, 60]],
+		[       [120, 60],[240, 60]]
 	],
 ];
 
@@ -118,6 +119,14 @@ game.hexajohns = [
 	[[100,30]],
 	[[200,30]],
 	[],
+];
+
+game.audiotracks = [
+	{src:'sound/Buskerdroid_-_01_-_Blast.ogg', title:'Buskerdroid - Blast'},
+	{src:'sound/Buskerdroid_-_03_-_God_Bless_His_Mess.ogg', title:'Buskerdroid - God Bless His Mess'},
+	{src:'sound/Buskerdroid_-_05_-_I_Want_You.ogg', tile:'Buskerdroid - I Want You'},
+	{src:'sound/Buskerdroid_-_02_-_Gameboy_Love.ogg', title:'Buskerdroid - Gameboy Love'},
+    {src:'sound/Buskerdroid_-_04_-_3Distortion.ogg', title:'Buskerdroid - 3Distrortion.ogg'}
 ];
 
 window.requestAnimFrame = (function(){
@@ -153,7 +162,7 @@ window.addEventListener('keyup', function(event) {
 	}
 });
 
-function reset(){ 
+function reset() { 
 	game.t = 0;
 	game.hexajohns = [
 			[[100,30]],
@@ -166,6 +175,21 @@ function reset(){
 	game.time = 0;
 	game.tick = 0;
 	game.over = false;
+
+	// Pick a new audio track.
+	var track = game.audiotracks[Math.floor(game.audiotracks.length*Math.random())];
+	game.audio.src = track.src;
+	console.log('Now Playing: ' + track.title + " ("+game.audio.src+")");
+	game.audio.load();
+	game.audio.play(); 
+	game.audio.addEventListener("load", function() { 
+		console.log('Track loaded');
+	}, true);	
+}
+
+function over() {
+	game.over = true;
+	game.audio.pause();
 }
 
 function setColor(i) {
@@ -285,8 +309,9 @@ game.thinkers = [
 				var h = dat[0]-game.t, segsize = dat[1];
 				maxH = Math.max(h, maxH);
 				if(h+segsize+game.linesize < 0) { game.hexajohns[i].splice(n,1); return; }
-				if(h<=0 && h+segsize>=0) {
+				if(!game.over && h<=0 && h+segsize>=0) {
 					if((i*segstep)-0.001 < game.playerang && (i*segstep + segstep)+0.001 > game.playerang) {
+						game.audio.pause();
 						game.over = true;
 					}
 				}
@@ -339,11 +364,14 @@ game.thinkers = [
 ]
 
 function gloop(e) {
+	if(game.last == 0) {
+		game.last = e;
+	}
 	var rdt = (e-game.last)/1000;
 	game.last = e;
 	game.accum += rdt;
 
-	while(game.accum > game.timestep) {
+	if(game.accum > game.timestep) {
 		var rampmod = Math.min(game.ramptime, game.time)/game.ramptime;
 		game.dt = game.timestep * (game.tmulti + rampmod*game.rampmulti*game.tmulti);
 		game.tick += game.over ? game.dt/2 : game.dt;
@@ -364,4 +392,5 @@ function gloop(e) {
 	requestAnimFrame(function(t) {gloop(t)});
 }
 
+reset();
 gloop(0);
