@@ -10,7 +10,7 @@ var game = {
 	line: 'rgb(39,255,255)',
 	linesize: 25,
 	spawnbounds: 500,
-	spawnmargin: 150,
+	spawnmargin: 120,
 	lastshapesize: 0,
 	playersize: 5,
 	playerang: 0,
@@ -20,7 +20,7 @@ var game = {
 	segsize: 1000,
 	ramptime: 240,
 	rampmulti: 1.5,
-	tmulti: 75,
+	tmulti: 90,
 	last: 0,
 	t: 0,
 	tick: 0,
@@ -87,12 +87,12 @@ game.shapes = [
 		[[80,30]]
 	],
 	[
-		[[0  ,30],[120,30]],
-		[[40 ,30],[160,30]],
-		[[80 ,30],[200,30]],
-		[[0  ,30],[120,30]],
-		[[40 ,30],[160,30]],
-		[[80 ,30],[200,30]]
+		[[0  ,40],    [120,40]],
+		[    [40 ,40],    [160,40]],
+		[        [80 ,40],    [200,40]],
+		[[0  ,40],   [120,40]],
+		[    [40 ,40],   [160,40]],
+		[        [80 ,40],   [200,40]]
 	],
 	[
 		[[0 ,30],        [120,30],        [240,30]],
@@ -103,12 +103,12 @@ game.shapes = [
 		[        [60,30],         [180,30]]
 	],
 	[
-		[[0,60],         ,[240, 60]],
-		[[0,60],[120, 60]],
-		[       [120, 60],[240, 60]],
-		[[0,60],         ,[240, 60]],
-		[[0,60],[120, 60]],
-		[       [120, 60],[240, 60]]
+		[[0,50],         ,[240, 50]],
+		[[0,50],[120, 50]],
+		[       [120, 50],[240, 50]],
+		[[0,50],         ,[240, 50]],
+		[[0,50],[120, 50]],
+		[       [120, 50],[240, 50]]
 	],
 ];
 
@@ -124,7 +124,7 @@ game.hexajohns = [
 game.audiotracks = [
 	{src:'sound/Buskerdroid_-_01_-_Blast.ogg', title:'Buskerdroid - Blast'},
 	{src:'sound/Buskerdroid_-_03_-_God_Bless_His_Mess.ogg', title:'Buskerdroid - God Bless His Mess'},
-	{src:'sound/Buskerdroid_-_05_-_I_Want_You.ogg', tile:'Buskerdroid - I Want You'},
+	{src:'sound/Buskerdroid_-_05_-_I_Want_You.ogg', title:'Buskerdroid - I Want You'},
 	{src:'sound/Buskerdroid_-_02_-_Gameboy_Love.ogg', title:'Buskerdroid - Gameboy Love'},
     {src:'sound/Buskerdroid_-_04_-_3Distortion.ogg', title:'Buskerdroid - 3Distrortion.ogg'}
 ];
@@ -149,6 +149,7 @@ window.addEventListener('keydown', function(event) {
 		case 32:
 			if(game.over) {
 				reset();
+				game.pause(false);
 			}
 			break;
 	}
@@ -174,14 +175,15 @@ function reset() {
 		];
 	game.time = 0;
 	game.tick = 0;
+	game.spawnHexagons(game.spawnbounds/2);
 	game.over = false;
+	game.pause(true);
 
 	// Pick a new audio track.
 	var track = game.audiotracks[Math.floor(game.audiotracks.length*Math.random())];
 	game.audio.src = track.src;
 	console.log('Now Playing: ' + track.title + " ("+game.audio.src+")");
 	game.audio.load();
-	game.audio.play(); 
 	game.audio.addEventListener("load", function() { 
 		console.log('Track loaded');
 	}, true);	
@@ -192,6 +194,21 @@ function over() {
 	game.audio.pause();
 }
 
+game.pause = function(p) {
+	game.paused = p;
+	if(game.paused) {
+		game.audio.pause();
+	}
+	else {
+		game.audio.play();
+	}
+}
+
+game.start = function() {
+	game.pause(false);
+	document.getElementById('start_button').style.display = 'none';
+}
+
 function setColor(i) {
 	var cs = coloursets[i](game.t);
 	game.background = cs[0];
@@ -199,10 +216,24 @@ function setColor(i) {
 	game.line = cs[2];
 }
 
+game.spawnHexagons = function(p) {
+	var i = Math.floor((game.shapes.length)*Math.random());
+	var shape = game.shapes[i];
+	var shapesize = 0;
+	var offset = Math.floor(7 * Math.random());
+	shape.forEach(function(h, n){
+		h.forEach(function(s) {
+			shapesize = Math.max(s[1], shapesize);
+			game.hexajohns[(n+offset)%6].push([game.t+p+game.lastshapesize+game.spawnmargin+s[0], s[1]]);
+		});
+	});
+	game.lastshapesize = shapesize;
+}
+
 game.drawers = [
-	function updateColor(c) {
-		setColor(game.colorset);	
-	},
+function updateColor(c) {
+	setColor(game.colorset);	
+},
 	function backdrop(c) {
 		var cnv = game.canvas;
 		c.save();
@@ -233,9 +264,9 @@ game.drawers = [
 		c.translate(cnv.width/2, cnv.height/2);
 		c.rotate(game.tick*(Math.PI/180) - game.playerang);
 		c.beginPath();
-			c.lineTo(0, game.linesize + 10);
-			c.lineTo(-game.playersize, game.linesize + 5);
-			c.lineTo( game.playersize, game.linesize + 5);
+		c.lineTo(0, game.linesize + 10);
+		c.lineTo(-game.playersize, game.linesize + 5);
+		c.lineTo( game.playersize, game.linesize + 5);
 		c.fill();
 		c.restore();
 	},
@@ -255,12 +286,12 @@ game.drawers = [
 				h = Math.max(0, hb);
 				c.beginPath();
 				var a = [Math.sin(s), Math.cos(s)],
-					b = [Math.sin(s+segstep), Math.cos(s+segstep)];
-				c.lineTo(a[0]*h, a[1]*h);
-				c.lineTo(a[0]*hb + a[0]*segsize, a[1]*hb + a[1]*segsize);
-				c.lineTo(b[0]*hb + b[0]*segsize, b[1]*hb + b[1]*segsize);
-				c.lineTo(b[0]*h, b[1]*h);
-				c.fill();
+				b = [Math.sin(s+segstep), Math.cos(s+segstep)];
+			c.lineTo(a[0]*h, a[1]*h);
+			c.lineTo(a[0]*hb + a[0]*segsize, a[1]*hb + a[1]*segsize);
+			c.lineTo(b[0]*hb + b[0]*segsize, b[1]*hb + b[1]*segsize);
+			c.lineTo(b[0]*h, b[1]*h);
+			c.fill();
 			});
 		}
 		c.restore();
@@ -290,48 +321,38 @@ game.drawers = [
 		game.gameovertimediv.innerHTML = game.time.toFixed(2);
 		if(game.over) {
 			game.gameoverdiv.style.display =
-			game.gameovertimediv.style.display = 'block';
+				game.gameovertimediv.style.display = 'block';
 		}
 		else {
 			game.gameoverdiv.style.display =
-			game.gameovertimediv.style.display = 'none';
+				game.gameovertimediv.style.display = 'none';
 		}
 	}
 ];
 
 game.thinkers = [
-	function updateHexagons(dt) {
-		var segstep = (Math.PI*2) / game.segcount;
-		var maxH = 0;
-		for(var i=0; i < game.segcount; i++) {
-			var hexagones = game.hexajohns[i];
-			hexagones.forEach(function(dat, n){
-				var h = dat[0]-game.t, segsize = dat[1];
-				maxH = Math.max(h, maxH);
-				if(h+segsize+game.linesize < 0) { game.hexajohns[i].splice(n,1); return; }
-				if(!game.over && h<=0 && h+segsize>=0) {
-					if((i*segstep)-0.001 < game.playerang && (i*segstep + segstep)+0.001 > game.playerang) {
-						game.audio.pause();
-						game.over = true;
-					}
+function updateHexagons(dt) {
+	var segstep = (Math.PI*2) / game.segcount;
+	var maxH = 0;
+	for(var i=0; i < game.segcount; i++) {
+		var hexagones = game.hexajohns[i];
+		hexagones.forEach(function(dat, n){
+			var h = dat[0]-game.t, segsize = dat[1];
+			maxH = Math.max(h, maxH);
+			if(h+segsize+game.linesize < 0) { game.hexajohns[i].splice(n,1); return; }
+			if(!game.over && h<=0 && h+segsize>=0) {
+				if((i*segstep)-0.001 < game.playerang && (i*segstep + segstep)+0.001 > game.playerang) {
+					game.audio.pause();
+					game.over = true;
 				}
-			});
-		}
-		if(maxH < game.spawnbounds+game.lastshapesize) {
-			// Not enough hexajohns.
-			var i = Math.floor((game.shapes.length)*Math.random());
-			var shape = game.shapes[i];
-			var shapesize = 0;
-			var offset = Math.floor(7 * Math.random());
-			shape.forEach(function(h, n){
-				h.forEach(function(s) {
-					shapesize = Math.max(s[1], shapesize);
-					game.hexajohns[(n+offset)%6].push([game.t+game.spawnbounds+game.lastshapesize+game.spawnmargin+s[0], s[1]]);
-				});
-			});
-			game.lastshapesize = shapesize;
-		}
-	},
+			}
+		});
+	}
+	if(maxH < game.spawnbounds+game.lastshapesize) {
+		// Not enough hexajohns.
+		game.spawnHexagons(game.spawnbounds);
+	}
+},
 
 	function updatePlayer(dt) {
 		var oldang = game.playerang;
@@ -375,7 +396,7 @@ function gloop(e) {
 		var rampmod = Math.min(game.ramptime, game.time)/game.ramptime;
 		game.dt = game.timestep * (game.tmulti + rampmod*game.rampmulti*game.tmulti);
 		game.tick += game.over ? game.dt/2 : game.dt;
-		if(!game.over) {
+		if(!(game.over||game.paused)) {
 			game.time += rdt;
 			game.t += game.dt;
 		}
@@ -385,7 +406,7 @@ function gloop(e) {
 		//Handle thinking
 		game.thinkers.forEach(function(t){ t.call(game, game.over ? 0 : game.dt); });
 		game.drawers.forEach(function(d){ d.call(game, c); });
-		
+
 		game.accum -= game.timestep;
 	}
 

@@ -10,6 +10,7 @@
 			.box { position: absolute; background: #000; color: #FFF; padding: 7px 10px; }
 			#gameover { left: 0; top: 200px; font-size: 2em; } #gameover_time { right: 0; top: 200px; width: 140px; font-size: 2em; }
 			#timer { left: 0; top: 0; width: 70px; }
+			#start_button { top: 220px; left: 350px; right: 350px; text-align: center; }
 		</style>
 	</head>
 	<body>
@@ -18,6 +19,7 @@
 			<div id="gameover" class="box">GAME OVER</div>
 			<div id="gameover_time" class="box">0.0</div>
 			<div id="timer" class="box">0.0</div>
+			<a class="box" id="start_button" onclick="game.start()">START</a>
 			<canvas id="the_game" width="854" height="480"></canvas>
 		</div>
 		<p><strong>Left&amp;Right</strong>: Move, <strong>Space</strong>: Restart</p>
