@@ -135,6 +135,10 @@ function drawScore(c) {
 }
 
 function updateRotation(dt) {
+	var F = Math.random() * 100;
+	if(F < 1) {
+		game.direction = -game.direction;
+	}
 	game.rotation += game.direction * game.rotspeed * dt;
 }
 
@@ -199,6 +203,7 @@ game.levels = {
 		movespeed: 100,
 		playerspeed: 6,
 		rotspeed: 2,
+		colorset: 3,
 	},
 	medium: {
 		ramptime: 240,
@@ -206,6 +211,7 @@ game.levels = {
 		movespeed: 150,
 		playerspeed: 7,
 		rotspeed: 2.5,
+		colorset: 1,
 	},
 	hard: {
 		ramptime: 240,
@@ -213,6 +219,7 @@ game.levels = {
 		movespeed: 200,
 		playerspeed: 8,
 		rotspeed: 3,
+		colorset: 1,
 	},
 	john: {
 		ramptime: 240,
@@ -220,6 +227,7 @@ game.levels = {
 		movespeed: 250,
 		playerspeed: 9,
 		rotspeed: 3.5,
+		colorset: 1,
 	},
 	jade: {
 		ramptime: 240,
@@ -227,6 +235,7 @@ game.levels = {
 		movespeed: 250,
 		playerspeed: 11,
 		rotspeed: 4,
+		colorset: 2,
 	},
 }
 
@@ -239,6 +248,7 @@ game.states = {
 			game.movespeed = game.levels[game.difficulty].movespeed;
 			game.playerspeed = game.levels[game.difficulty].playerspeed;
 			game.rotspeed = game.levels[game.difficulty].rotspeed;
+			game.colorset = game.levels[game.difficulty].colorset;
 			game.diffdiv.innerHTML = game.difficulty;
 			reset();
 		},
@@ -333,7 +343,29 @@ function(t){
 			"hsl("+H1+", 65%, 10%)",
 			"hsl("+Hline+", 65%, 30%)"
 				];
-	}
+	},
+	function(f){
+		var t = f * 50;
+		var tri = 360 / 3;
+		var H1 = t % 360;
+		var Hline = (t-tri) % 360;
+		return [
+			"hsl("+(Math.sin(f)*360)+", 95%, 35%)",
+			"hsl("+(Math.cos(f)*360)+", 95%, 35%)",
+			"hsl("+Hline+", 65%, 30%)"
+				];
+	},
+	function(f){
+		var t = f * 50;
+		var tri = 360 / 3;
+		var H1 = t % 360;
+		var Hline = (t-tri) % 360;
+		return [
+			"hsl(180, 65%, 20%)",
+			"hsl(180, 65%, 10%)",
+			"hsl(180, 95%, 35%)",
+				];
+	},
 ];
 
 game.shapes = [
@@ -450,9 +482,7 @@ function reset() {
 	game.audio.src = track.src;
 	console.log('Now Playing: ' + track.title + " ("+game.audio.src+")");
 	game.audio.load();
-	game.audio.addEventListener("load", function() { 
-		console.log('Track loaded');
-	}, true);	
+	game.audio.play();
 }
 
 function over() {
@@ -517,7 +547,8 @@ function gloop(e) {
 	game.accum += rdt;
 
 	if(game.accum > game.timestep) {
-		game.dt = game.timestep;
+		var ramp = Math.min(game.t, game.ramptime)/game.ramptime;
+		game.dt = game.timestep * (1+ramp*game.rampmulti);
 		if(!game.over) {
 			game.time += rdt;
 			game.t += game.dt;
