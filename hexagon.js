@@ -484,12 +484,12 @@ window.requestAnimFrame = (function(){
 
 window.addEventListener('keydown', function(event) {
 	game.states[game.currentstate].keydown(event.keyCode);
-	event.cancelDefault();
+	event.stopPropagation();
 });
 
 window.addEventListener('keyup', function(event) {
 	game.states[game.currentstate].keyup(event.keyCode);
-	event.cancelDefault();
+	event.stopPropagation();
 });
 
 function reset() { 
