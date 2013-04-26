@@ -7,11 +7,12 @@ var game = {
 	levelselectdiv: document.getElementById('level_select'),
 	timediv: document.getElementById('timer'),
 	audio: document.getElementById('audio_player'),
-	colorset: 1,
+	colorset: 0,
 	background: 'rgb(0,0,0)',
 	backgroundalt: 'rgb(255,255,255)',
 	line: 'rgb(39,255,255)',
 	linesize: 25,
+	skewmulti: 1/10,
 	spawnbounds: 500,
 	spawnmargin: 160,
 	lastshapesize: 0,
@@ -38,15 +39,24 @@ function updateColor(c) {
 	setColor(game.colorset);	
 }
 
+function drawMatrix(c) {
+	var cnv = game.canvas;
+	cnv.width = cnv.width;
+	c.setTransform(1, 0, 0, 1, cnv.width/2, cnv.height/2);
+	c.transform(1, Math.sin(game.t)*game.skewmulti, 0, 1, 0, 0);
+	c.rotate(game.rotation);
+}
+
 function backdrop(c) {
 	var cnv = game.canvas;
 	c.save();
 	// Fill background with background color.
 	c.fillStyle = game.background;
+	c.save();
+	c.setTransform(1,0,0,1,0,0);
 	c.fillRect(0, 0, cnv.width, cnv.height);
+	c.restore();
 	// Hexabits
-	c.translate(cnv.width/2, cnv.height/2);
-	c.rotate(game.rotation);
 	c.fillStyle = game.backgroundalt;
 	var segsize = game.segsize;
 	var segstep = (Math.PI*2) / game.segcount;
@@ -64,9 +74,8 @@ function backdrop(c) {
 function drawPlayer(c) {
 	var cnv = game.canvas;
 	c.save();
+	c.rotate(-game.playerang);
 	c.fillStyle = game.line;
-	c.translate(cnv.width/2, cnv.height/2);
-	c.rotate(game.rotation - game.playerang);
 	c.beginPath();
 	c.lineTo(0, game.linesize + 10);
 	c.lineTo(-game.playersize, game.linesize + 5);
@@ -79,8 +88,6 @@ function drawHexagons(c) {
 	var cnv = game.canvas;
 	var segstep = (Math.PI*2) / game.segcount;
 	c.save();
-	c.translate(cnv.width/2, cnv.height/2);
-	c.rotate(game.rotation);
 	c.fillStyle = game.line;
 	var hexT = game.t*game.movespeed;
 	for(var s = 0, i=0; i < game.segcount; s +=segstep, i++) {
@@ -110,8 +117,6 @@ function drawCentroid(c) {
 	c.strokeStyle = game.line;
 	c.fillStyle = game.background;
 	c.lineWidth = 2;
-	c.translate(cnv.width/2, cnv.height/2);
-	c.rotate(game.rotation);
 	c.beginPath();
 	for(var s = 0, i=0; i < game.segcount; s +=segstep, i++) {
 		c.lineTo(Math.sin(s)*segsize, Math.cos(s)*segsize);
@@ -209,6 +214,7 @@ game.levels = {
 		playerspeed: 6,
 		rotspeed: 2,
 		colorset: 3,
+		skewmulti: 1/5,
 	},
 	medium: {
 		ramptime: 240,
@@ -217,6 +223,7 @@ game.levels = {
 		playerspeed: 7,
 		rotspeed: 2.5,
 		colorset: 4,
+		skewmulti: 1/5,
 	},
 	hard: {
 		ramptime: 240,
@@ -225,6 +232,7 @@ game.levels = {
 		playerspeed: 8,
 		rotspeed: 3,
 		colorset: 1,
+		skewmulti: 1/3,
 	},
 	john: {
 		ramptime: 240,
@@ -233,6 +241,7 @@ game.levels = {
 		playerspeed: 9,
 		rotspeed: 3.5,
 		colorset: 1,
+		skewmulti: 1/3,
 	},
 	jade: {
 		ramptime: 240,
@@ -241,6 +250,7 @@ game.levels = {
 		playerspeed: 12,
 		rotspeed: 4,
 		colorset: 2,
+		skewmulti: 1/2,
 	},
 }
 
@@ -254,6 +264,7 @@ game.states = {
 			game.playerspeed = game.levels[game.difficulty].playerspeed;
 			game.rotspeed = game.levels[game.difficulty].rotspeed;
 			game.colorset = game.levels[game.difficulty].colorset;
+			game.skewmulti = game.levels[game.difficulty].skewmulti;
 			game.diffdiv.innerHTML = game.difficulty;
 			reset();
 		},
@@ -264,6 +275,7 @@ game.states = {
 			],
 		drawers: [
 			updateColor,
+		drawMatrix,
 		backdrop,
 		drawPlayer,
 		drawHexagons,
@@ -320,6 +332,7 @@ game.states = {
 
 			],
 		drawers: [
+		drawMatrix,
 		updateColor,
 		backdrop,
 		drawCentroid,
@@ -335,9 +348,9 @@ game.context = game.canvas.getContext('2d');
 var coloursets = [
 function(t){
 	return [
-		"rgb(221,231,225)",
-		"rgb(255,255,255)",
-		"rgb(39,103,237)",
+		"rgb(255,0,0)",
+		"rgb(0,255,0)",
+		"rgb(0,0,255)",
 		];
 },
 	function(f){
@@ -542,11 +555,12 @@ function setColor(i) {
 	game.background = cs[0];
 	game.backgroundalt = cs[1];
 	game.line = cs[2];
+	console.log(game.background, game.backgroundalt);
 	if(game.difficulty == 'jade') {
 		document.body.style.background=game.background;
 	}
 	else {
-		document.body.style.background=game.background='';
+		document.body.style.background='';
 	}
 }
 
