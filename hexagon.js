@@ -1,5 +1,6 @@
 var game = {
 	canvas: document.getElementById('the_game'),
+	gamecontainerdiv: document.getElementById('game_container'),
 	gameoverdiv: document.getElementById('gameover'),
 	gameovertimediv: document.getElementById('gameover_time'),
 	diffdiv: document.getElementById('diff_text'),
@@ -140,6 +141,10 @@ function updateRotation(dt) {
 		game.direction = -game.direction;
 	}
 	game.rotation += game.direction * game.rotspeed * dt;
+	if(game.difficulty == 'jade') {
+		game.gamecontainerdiv.style.MozTransform=
+			game.gamecontainerdiv.style.WebkitTransform='rotate('+(game.t*60)+'deg)';
+	}
 }
 
 function updateHexagons(dt) {
@@ -295,6 +300,8 @@ game.states = {
 			game.timediv.style.display = 'none';
 			game.gameoverdiv.style.display =
 				game.gameovertimediv.style.display = 'none';
+			game.gamecontainerdiv.style.MozTransform=
+				game.gamecontainerdiv.style.WebkitTransform='';
 		}
 	},
 	level_select: {
@@ -345,19 +352,15 @@ function(t){
 				];
 	},
 	function(f){
-		var t = f * 50;
+		var t = f * 100;
 		var tri = 360 / 3;
 		var H1 = t % 360;
 		var Hline = (t-tri) % 360;
 		var t = (parseInt(f*10))%2;
-		var L1 = 20, L2 = 10;
-		if(t == 0) {
-			L1= 10, L2 = 20;
-		}
 		return [
 			"hsl("+(Math.sin(f)*360)+", 95%, 35%)",
 			"hsl("+(Math.cos(f)*360)+", 95%, 35%)",
-			"hsl("+Hline+", 65%, 30%)"
+			"hsl("+Hline+", 65%, 20%)"
 				];
 	},
 	function(f){
@@ -481,10 +484,12 @@ window.requestAnimFrame = (function(){
 
 window.addEventListener('keydown', function(event) {
 	game.states[game.currentstate].keydown(event.keyCode);
+	event.cancelDefault();
 });
 
 window.addEventListener('keyup', function(event) {
 	game.states[game.currentstate].keyup(event.keyCode);
+	event.cancelDefault();
 });
 
 function reset() { 
