@@ -284,7 +284,7 @@ game.states = {
 			}
 		},
 		keyup: function(k) {
-			switch(event.keyCode) {
+			switch(k) {
 				case 37:
 				case 39:
 					game.playerdir = 0;
