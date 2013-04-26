@@ -89,8 +89,8 @@ function drawHexagons(c) {
 			var hb = h;
 			h = Math.max(0, hb);
 			c.beginPath();
-			var a = [Math.sin(s), Math.cos(s)],
-			b = [Math.sin(s+segstep), Math.cos(s+segstep)];
+			var a = [Math.sin(s-0.001), Math.cos(s-0.001)],
+			b = [Math.sin(s+segstep+0.001), Math.cos(s+segstep+0.001)];
 		c.lineTo(a[0]*h, a[1]*h);
 		c.lineTo(a[0]*hb + a[0]*segsize, a[1]*hb + a[1]*segsize);
 		c.lineTo(b[0]*hb + b[0]*segsize, b[1]*hb + b[1]*segsize);
