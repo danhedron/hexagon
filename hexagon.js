@@ -143,7 +143,7 @@ function updateRotation(dt) {
 	game.rotation += game.direction * game.rotspeed * dt;
 	if(game.difficulty == 'jade') {
 		game.gamecontainerdiv.style.MozTransform=
-			game.gamecontainerdiv.style.WebkitTransform='rotate('+(game.t*60)+'deg)';
+			game.gamecontainerdiv.style.WebkitTransform='rotate('+(game.t*100)+'deg)';
 	}
 }
 
@@ -542,6 +542,9 @@ function setColor(i) {
 	game.background = cs[0];
 	game.backgroundalt = cs[1];
 	game.line = cs[2];
+	if(game.difficulty == 'jade') {
+		document.body.style.background=game.background;
+	}
 }
 
 game.spawnHexagons = function(p) {
