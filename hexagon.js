@@ -89,8 +89,8 @@ function drawHexagons(c) {
 			var hb = h;
 			h = Math.max(0, hb);
 			c.beginPath();
-			var a = [Math.sin(s-0.001), Math.cos(s-0.001)],
-			b = [Math.sin(s+segstep+0.001), Math.cos(s+segstep+0.001)];
+			var a = [Math.sin(s-0.005), Math.cos(s-0.005)],
+			b = [Math.sin(s+segstep+0.005), Math.cos(s+segstep+0.005)];
 		c.lineTo(a[0]*h, a[1]*h);
 		c.lineTo(a[0]*hb + a[0]*segsize, a[1]*hb + a[1]*segsize);
 		c.lineTo(b[0]*hb + b[0]*segsize, b[1]*hb + b[1]*segsize);
@@ -547,7 +547,7 @@ game.spawnHexagons = function(p) {
 	var hexT = game.t * game.movespeed;
 	shape.forEach(function(h, n){
 		h.forEach(function(s) {
-			shapesize = Math.max(s[1], shapesize);
+			shapesize = Math.max(s[0]+s[1], shapesize);
 			game.hexajohns[(n+offset)%6].push([hexT+p+game.lastshapesize+game.spawnmargin+s[0], s[1]]);
 		});
 	});
