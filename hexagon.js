@@ -545,6 +545,9 @@ function setColor(i) {
 	if(game.difficulty == 'jade') {
 		document.body.style.background=game.background;
 	}
+	else {
+		document.body.style.background=game.background='';
+	}
 }
 
 game.spawnHexagons = function(p) {
