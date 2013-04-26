@@ -160,7 +160,7 @@ function updateHexagons(dt) {
 			}
 		});
 	}
-	if(maxH < game.spawnbounds+game.lastshapesize) {
+	if(maxH < game.spawnbounds) {
 		// Not enough hexajohns.
 		game.spawnHexagons(game.spawnbounds);
 	}
@@ -349,6 +349,11 @@ function(t){
 		var tri = 360 / 3;
 		var H1 = t % 360;
 		var Hline = (t-tri) % 360;
+		var t = (parseInt(f*10))%2;
+		var L1 = 20, L2 = 10;
+		if(t == 0) {
+			L1= 10, L2 = 20;
+		}
 		return [
 			"hsl("+(Math.sin(f)*360)+", 95%, 35%)",
 			"hsl("+(Math.cos(f)*360)+", 95%, 35%)",
@@ -367,13 +372,15 @@ function(t){
 				];
 	},
 	function(f){
-		var t = f * 50;
-		var tri = 360 / 3;
-		var H1 = t % 360;
-		var Hline = (t-tri) % 360;
+		var t = (parseInt(f))%2;
+		var L1 = 20, L2 = 10;
+		if(t == 0) {
+			L1= 10, L2 = 20;
+		}
+		console.log(t);
 		return [
-			"hsl(90, 65%, 20%)",
-			"hsl(90, 65%, 10%)",
+			"hsl(90, 65%, "+L1+"%)",
+			"hsl(90, 65%, "+L2+"%)",
 			"hsl(90, 95%, 35%)",
 				];
 	},
@@ -395,14 +402,6 @@ game.shapes = [
 		[[0,30],[120,30],[240,30],[360,30]],
 		[[0,30],[120,30],[240,30],[360,30]],
 		[       [120,30],         [360,30]]
-	],
-	[
-		[[0,150]],
-		[  ],
-		[[0,150]],
-		[  ],
-		[[0,150]],
-		[  ]
 	],
 	[
 		[[0,30]],
@@ -498,7 +497,8 @@ function reset() {
 		[],
 		[],
 		[]
-		];
+	];
+	game.lastshapesize = 0;
 	game.spawnHexagons(game.spawnbounds/2);
 	game.over = false;
 	game.rotation = 0;
@@ -547,8 +547,9 @@ game.spawnHexagons = function(p) {
 	var hexT = game.t * game.movespeed;
 	shape.forEach(function(h, n){
 		h.forEach(function(s) {
-			shapesize = Math.max(s[0]+s[1], shapesize);
-			game.hexajohns[(n+offset)%6].push([hexT+p+game.lastshapesize+game.spawnmargin+s[0], s[1]]);
+			shapesize = Math.max(shapesize, s[0], s[1]);
+			var base = hexT+p+game.spawnmargin;
+			game.hexajohns[(n+offset)%6].push([base+s[0], s[1]]);
 		});
 	});
 	game.lastshapesize = shapesize;
