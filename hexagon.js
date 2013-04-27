@@ -1,6 +1,7 @@
 var game = {
 	canvas: document.getElementById('the_game'),
 	gamecontainerdiv: document.getElementById('game_container'),
+	mutediv: document.getElementById('mute'),
 	gameoverdiv: document.getElementById('gameover'),
 	gameovertimediv: document.getElementById('gameover_time'),
 	diffdiv: document.getElementById('diff_text'),
@@ -32,7 +33,8 @@ var game = {
 	rotspeed: 1,
 	movespeed: 50,
 	timestep: 1/60,
-	over: false
+	over: false,
+	mute: false
 };
 
 function updateColor(c) {
@@ -318,7 +320,8 @@ game.states = {
 	},
 	level_select: {
 		enter: function() {
-			game.levelselectdiv.style.display = 'block';
+			game.mutediv.style.display =
+				game.levelselectdiv.style.display = 'block';
 			game.ramptime = 1;
 			game.rampmulti = 1;
 			game.tmulti = 45;
@@ -338,7 +341,8 @@ game.states = {
 		drawCentroid,
 			],
 		exit: function() {
-			game.levelselectdiv.style.display = 'none';
+			game.mutediv.style.display =
+				game.levelselectdiv.style.display = 'none';
 		}
 	}
 };
@@ -393,7 +397,6 @@ function(t){
 		if(t == 0) {
 			L1= 10, L2 = 20;
 		}
-		console.log(t);
 		return [
 			"hsl(90, 65%, "+L1+"%)",
 			"hsl(90, 65%, "+L2+"%)",
@@ -555,7 +558,6 @@ function setColor(i) {
 	game.background = cs[0];
 	game.backgroundalt = cs[1];
 	game.line = cs[2];
-	console.log(game.background, game.backgroundalt);
 	if(game.difficulty == 'jade') {
 		document.body.style.background=game.background;
 	}
@@ -590,6 +592,46 @@ function enterState(state) {
 	game.currentstate = state;
 }
 enterState('level_select');
+
+game.gamecontainerdiv.onresize = function() {
+
+}
+
+function toggleFullscreen() {
+	if(!(document.fullScreen || document.webkitFullScreen || document.mozfullScreen)) {
+		game.org_width = game.canvas.width;
+		game.org_height = game.canvas.height;
+		if(game.gamecontainerdiv.requestFullScreen) {
+			game.gamecontainerdiv.requestFullScreen();
+		}
+		else if(game.gamecontainerdiv.webkitRequestFullScreen) {
+			game.gamecontainerdiv.webkitRequestFullScreen();
+		}
+		else if(game.gamecontainerdiv.mozRequestFullScreen) {
+			game.gamecontainerdiv.mozRequestFullScreen();
+		}
+		game.gamecontainerdiv.style.width = document.width;
+		console.log(document.width);
+		game.canvas.width = document.width;
+		game.canvas.height = document.height;
+	}
+	else {
+		game.gamecontainerdiv.style.width = game.org_width;
+		game.canvas.width = game.org_width;
+		game.canvas.height = game.org_height;
+		document.cancelFullScreen();
+	}
+}
+
+function toggleAudio() {
+	game.mute=!game.mute;
+	if(game.mute) {
+		game.audio.volume = 0;
+	}
+	else {
+		game.audio.volume = 1;
+	}
+}
 
 function gloop(e) {
 	if(game.last == 0) {
