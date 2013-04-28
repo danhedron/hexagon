@@ -156,6 +156,11 @@ function updateRotation(dt) {
 		game.direction = -game.direction;
 	}
 	game.rotation += game.direction * game.rotspeed * dt;
+	if(game.difficulty == 'jade' && game. t > 5) {
+		game.gamecontainerdiv.style.MozTransform=
+			game.gamecontainerdiv.style.WebkitTransform=
+			game.gamecontainerdiv.style.Transform='rotate('+((game.t-5)*100)+'deg)';
+	}
 }
 
 
@@ -253,11 +258,11 @@ game.levels = {
 	jade: {
 		ramptime: 240,
 		rampmulti: 1.5,
-		movespeed: 200,
-		playerspeed: 12,
+		movespeed: 210,
+		playerspeed: 11,
 		rotspeed: 3.5,
 		colorset: 2,
-		skewmulti: 1,
+		skewmulti: 0.75,
 	},
 }
 
@@ -672,7 +677,7 @@ function gloop(e) {
 		var ramp = Math.min(game.t, game.ramptime)/game.ramptime;
 		game.dt = game.timestep * (1+ramp*game.rampmulti);
 		if(!game.over) {
-			game.time += rdt;
+			game.time += game.dt;
 			game.t += game.dt;
 		}
 		var cnv = game.canvas;
