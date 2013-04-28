@@ -2,6 +2,8 @@ var game = {
 	canvas: document.getElementById('the_game'),
 	gamecontainerdiv: document.getElementById('game_container'),
 	mutediv: document.getElementById('mute'),
+	fullscreendiv: document.getElementById('fullscreen'),
+	hackdiv: document.getElementById('wrap'),
 	gameoverdiv: document.getElementById('gameover'),
 	gameovertimediv: document.getElementById('gameover_time'),
 	diffdiv: document.getElementById('diff_text'),
@@ -34,8 +36,12 @@ var game = {
 	movespeed: 50,
 	timestep: 1/60,
 	over: false,
-	mute: false
+	mute: false,
+	fullscreen: false
 };
+
+game.org_width = game.canvas.width;
+game.org_height = game.canvas.height;
 
 function updateColor(c) {
 	setColor(game.colorset);	
@@ -148,11 +154,8 @@ function updateRotation(dt) {
 		game.direction = -game.direction;
 	}
 	game.rotation += game.direction * game.rotspeed * dt;
-	if(game.difficulty == 'jade') {
-		game.gamecontainerdiv.style.MozTransform=
-			game.gamecontainerdiv.style.WebkitTransform='rotate('+(game.t*100)+'deg)';
-	}
 }
+
 
 function updateHexagons(dt) {
 	var segstep = (Math.PI*2) / game.segcount;
@@ -250,9 +253,9 @@ game.levels = {
 		rampmulti: 1.5,
 		movespeed: 225,
 		playerspeed: 12,
-		rotspeed: 4,
+		rotspeed: 3.5,
 		colorset: 2,
-		skewmulti: 1/2,
+		skewmulti: 0.75,
 	},
 }
 
@@ -321,6 +324,7 @@ game.states = {
 	level_select: {
 		enter: function() {
 			game.mutediv.style.display =
+				game.fullscreendiv.style.display =
 				game.levelselectdiv.style.display = 'block';
 			game.ramptime = 1;
 			game.rampmulti = 1;
@@ -342,6 +346,7 @@ game.states = {
 			],
 		exit: function() {
 			game.mutediv.style.display =
+				game.fullscreendiv.style.display =
 				game.levelselectdiv.style.display = 'none';
 		}
 	}
@@ -593,34 +598,29 @@ function enterState(state) {
 }
 enterState('level_select');
 
-game.gamecontainerdiv.onresize = function() {
-
-}
-
-function toggleFullscreen() {
-	if(!(document.fullScreen || document.webkitFullScreen || document.mozfullScreen)) {
-		game.org_width = game.canvas.width;
-		game.org_height = game.canvas.height;
-		if(game.gamecontainerdiv.requestFullScreen) {
-			game.gamecontainerdiv.requestFullScreen();
-		}
-		else if(game.gamecontainerdiv.webkitRequestFullScreen) {
-			game.gamecontainerdiv.webkitRequestFullScreen();
-		}
-		else if(game.gamecontainerdiv.mozRequestFullScreen) {
-			game.gamecontainerdiv.mozRequestFullScreen();
-		}
-		game.gamecontainerdiv.style.width = document.width;
-		console.log(document.width);
-		game.canvas.width = document.width;
-		game.canvas.height = document.height;
+function resizeCanvas() 
+{
+	if(game.fullscreen) {
+		game.canvas.width = window.innerWidth;
+		game.canvas.height = window.innerHeight;
 	}
 	else {
-		game.gamecontainerdiv.style.width = game.org_width;
 		game.canvas.width = game.org_width;
 		game.canvas.height = game.org_height;
-		document.cancelFullScreen();
 	}
+}
+
+window.onresize = function() { resizeCanvas(); }
+
+function toggleFullscreen() {
+	if(game.fullscreen) {
+		game.hackdiv.className = "";
+	} 
+	else {
+		game.hackdiv.className = "fullscreen";
+	}
+	game.fullscreen = !game.fullscreen;
+	resizeCanvas();
 }
 
 function toggleAudio() {
