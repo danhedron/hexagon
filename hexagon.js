@@ -37,6 +37,8 @@ var game = {
 	timestep: 1/60,
 	over: false,
 	mute: false,
+	scale: 1,
+	viewwidth: 750,
 	fullscreen: false
 };
 
@@ -50,7 +52,7 @@ function updateColor(c) {
 function drawMatrix(c) {
 	var cnv = game.canvas;
 	cnv.width = cnv.width;
-	c.setTransform(1, 0, 0, 1, cnv.width/2, cnv.height/2);
+	c.setTransform(game.scale, 0, 0, game.scale, cnv.width/2, cnv.height/2);
 	c.transform(1, Math.sin(game.t)*game.skewmulti, 0, 1, 0, 0);
 	c.rotate(game.rotation);
 }
@@ -632,7 +634,9 @@ function resizeCanvas()
 		game.canvas.width = game.org_width;
 		game.canvas.height = game.org_height;
 	}
+	game.scale = game.canvas.width / game.viewwidth;
 }
+resizeCanvas();
 
 window.onresize = function() { resizeCanvas(); }
 
