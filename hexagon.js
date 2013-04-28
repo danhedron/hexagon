@@ -321,6 +321,7 @@ game.states = {
 				game.gameovertimediv.style.display = 'none';
 			game.gamecontainerdiv.style.MozTransform=
 				game.gamecontainerdiv.style.WebkitTransform='';
+			game.audio.pause();
 		}
 	},
 	level_select: {
