@@ -658,11 +658,9 @@ function toggleAudio() {
 }
 
 function gloop(e) {
-	if(game.last == 0) {
-		game.last = e;
-	}
-	var rdt = (e-game.last)/1000;
-	game.last = e;
+	var the_time = (new Date()).getTime(); 
+	var rdt = (the_time-game.last)/1000;
+	game.last = the_time;
 	game.accum += rdt;
 
 	if(game.accum > game.timestep) {
@@ -684,5 +682,6 @@ function gloop(e) {
 
 	requestAnimFrame(function(t) {gloop(t)});
 }
+game.last = (new Date()).getTime();
 
-gloop(0);
+gloop((new Date()).getTime());
