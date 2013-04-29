@@ -178,6 +178,7 @@ function updateHexagons(dt) {
 				if((i*segstep)-0.001 < game.playerang && (i*segstep + segstep)+0.001 > game.playerang) {
 					game.audio.pause();
 					game.over = true;
+					ga('_trackEvent', 'Game', 'Time', game.difficulty, game.t);
 				}
 			}
 		});
