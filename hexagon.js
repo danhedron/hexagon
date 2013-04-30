@@ -26,7 +26,6 @@ var game = {
 	segcount: 6,
 	segsize: 1000,
 	difficulty: 'easy',
-	last: 0,
 	t: 0,
 	time: 0,
 	accum: 0,
@@ -35,7 +34,7 @@ var game = {
 	rotspeed: 1,
 	movespeed: 50,
 	timestep: 1/60,
-	over: false,
+	over: true,
 	mute: false,
 	scale: 1,
 	viewwidth: 750,
@@ -259,8 +258,8 @@ game.levels = {
 	jade: {
 		ramptime: 240,
 		rampmulti: 1.5,
-		movespeed: 210,
-		playerspeed: 11,
+		movespeed: 250,
+		playerspeed: 12,
 		rotspeed: 3.5,
 		colorset: 2,
 		skewmulti: 0.75,
@@ -669,12 +668,12 @@ function toggleAudio() {
 }
 
 function gloop(e) {
-	var the_time = (new Date()).getTime(); 
-	var rdt = (the_time-game.last)/1000;
-	game.last = the_time;
+	game.last = game.last || e;
+	var rdt = (e-game.last)/1000;
+	game.last = e;
 	game.accum += rdt;
 
-	if(game.accum > game.timestep) {
+	while(game.accum > game.timestep) {
 		var ramp = Math.min(game.t, game.ramptime)/game.ramptime;
 		game.dt = game.timestep * (1+ramp*game.rampmulti);
 		if(!game.over) {
@@ -690,9 +689,6 @@ function gloop(e) {
 
 		game.accum -= game.timestep;
 	}
-
 	requestAnimFrame(function(t) {gloop(t)});
 }
-game.last = (new Date()).getTime();
-
-gloop((new Date()).getTime());
+requestAnimFrame(function(t) {gloop(t)});
